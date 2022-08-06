@@ -1,0 +1,16 @@
+package com.example.GTC.report.reportModel;
+
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+public class PostFeedReportReq {
+    private String content;
+    private Long userId;
+    private Long feedId;
+}
