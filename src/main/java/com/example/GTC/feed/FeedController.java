@@ -7,6 +7,7 @@ import com.example.GTC.config.BaseResponse;
 import com.example.GTC.config.BaseResponseStatus;
 import com.example.GTC.feed.model.PostFeedRes;
 import com.example.GTC.utils.JwtService;
+import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
@@ -21,6 +22,7 @@ import static com.example.GTC.config.BaseResponseStatus.*;
 
 @RestController
 @RequestMapping("/api/v1/feeds")
+@Api(tags = ("Gridge Test Spring Boot REST API"))
 public class FeedController {
 
     private final FeedService feedService;
@@ -73,6 +75,7 @@ public class FeedController {
             return new BaseResponse<>(e.getStatus());
         }
     }
+
     @ApiOperation(value = "피드 삭제")
     @ApiImplicitParam(name = "feedId", value = "피드 식별자", required = true, dataType = "Long", paramType = "path", example = "0")
     @DeleteMapping("/{feed_id}")
@@ -97,15 +100,15 @@ public class FeedController {
 
     })
     @GetMapping("/lists/{userId}")
-    public BaseResponse<List<GetFeedRes>> getFeedList(@PathVariable Long userId,@RequestParam int maxNum,@RequestParam int minNum) {
+    public BaseResponse<List<GetFeedRes>> getFeedList(@PathVariable Long userId, @RequestParam int maxNum, @RequestParam int minNum) {
         try {
-            if (!Long.valueOf(jwtService.getUserId()).equals(userId)){
+            if (!Long.valueOf(jwtService.getUserId()).equals(userId)) {
                 throw new BaseException(INVALID_JWT);
             }
-            if(minNum%10!=0||maxNum%10!=9){
+            if (minNum % 10 != 0 || maxNum % 10 != 9) {
                 throw new BaseException(INVALID_SIZE);
             }
-                List<GetFeedRes> feedList = feedService.getFeedList(userId, maxNum, minNum);
+            List<GetFeedRes> feedList = feedService.getFeedList(userId, maxNum, minNum);
             return new BaseResponse<>(feedList);
         } catch (BaseException e) {
             return new BaseResponse<>(e.getStatus());
