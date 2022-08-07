@@ -30,7 +30,7 @@ public interface FeedRepository extends JpaRepository<Feed, Long> {
             "LEFT JOIN FETCH f.feedImgUrls fiu " +
             "LEFT JOIN FETCH f.likes li " +
             "LEFT JOIN FETCH f.comments co " +
-            "where f.writer.userId in (select followed.userId from Follow where follower.userId = :userId)")
+            "where f.writer.userId = :userId")
     List<Feed> findAllByUserId(@Param("userId") Long userId);
 
     List<Feed> findAllByOrderByCreatedDateDesc();

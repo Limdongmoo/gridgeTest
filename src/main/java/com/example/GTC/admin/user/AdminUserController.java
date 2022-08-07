@@ -4,6 +4,9 @@ import com.example.GTC.admin.user.AdminUserService;
 import com.example.GTC.admin.user.model.GetUserRes;
 import com.example.GTC.config.BaseException;
 import com.example.GTC.config.BaseResponse;
+import com.example.GTC.user.UserService;
+import com.example.GTC.user.model.Role;
+import com.example.GTC.utils.JwtService;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,15 +16,21 @@ import org.springframework.web.bind.annotation.*;
 import java.time.LocalDate;
 import java.util.List;
 
+import static com.example.GTC.config.BaseResponseStatus.NOT_ADMIN_LOGINED;
+
 @RestController
 @RequestMapping("/admin/users")
 public class AdminUserController {
 
     private final AdminUserService adminUserService;
+    private final JwtService jwtService;
+    private final UserService userService;
 
     @Autowired
-    public AdminUserController(AdminUserService adminUserService) {
+    public AdminUserController(AdminUserService adminUserService, JwtService jwtService, UserService userService) {
         this.adminUserService = adminUserService;
+        this.jwtService = jwtService;
+        this.userService = userService;
     }
 
     //모든 유저 검색
@@ -37,6 +46,9 @@ public class AdminUserController {
     @GetMapping("/username")
     public BaseResponse<GetUserRes> findAllUserByUserName(@RequestParam String username) {
         try {
+            if (!userService.findById((long) jwtService.getUserId()).get().getRole().equals(Role.ADMIN)) {
+                throw new BaseException(NOT_ADMIN_LOGINED);
+            }
             GetUserRes result = adminUserService.findUserByUserName(username);
             return new BaseResponse<>(result);
         } catch (BaseException e) {
@@ -50,6 +62,9 @@ public class AdminUserController {
     @GetMapping("/name")
     public BaseResponse<List<GetUserRes>> findAllUserByName(@RequestParam String name) {
         try {
+            if (!userService.findById((long) jwtService.getUserId()).get().getRole().equals(Role.ADMIN)) {
+                throw new BaseException(NOT_ADMIN_LOGINED);
+            }
             return new BaseResponse<>(adminUserService.findUserByName(name));
         } catch (BaseException e) {
             return new BaseResponse<>(e.getStatus());
@@ -62,6 +77,9 @@ public class AdminUserController {
     @GetMapping("/date")
     public BaseResponse<List<GetUserRes>> findAllUserByCreatedDate(@DateTimeFormat(iso = DateTimeFormat.ISO.DATE) @RequestParam("date") LocalDate date) {
         try {
+            if (!userService.findById((long) jwtService.getUserId()).get().getRole().equals(Role.ADMIN)) {
+                throw new BaseException(NOT_ADMIN_LOGINED);
+            }
             return new BaseResponse<>(adminUserService.findUserByCreatedDate(date));
         } catch (BaseException e) {
 
@@ -76,6 +94,9 @@ public class AdminUserController {
     @GetMapping("/status")
     public BaseResponse<List<GetUserRes>> findAllUserByCreatedDate(@RequestParam String status) {
         try {
+            if (!userService.findById((long) jwtService.getUserId()).get().getRole().equals(Role.ADMIN)) {
+                throw new BaseException(NOT_ADMIN_LOGINED);
+            }
             return new BaseResponse<>(adminUserService.findUserByStatus(status));
         } catch (BaseException e) {
 
@@ -89,6 +110,9 @@ public class AdminUserController {
     @PatchMapping("/stop/{userId}")
     public BaseResponse<String> inactiveUser(@PathVariable Long userId) {
         try {
+            if (!userService.findById((long) jwtService.getUserId()).get().getRole().equals(Role.ADMIN)) {
+                throw new BaseException(NOT_ADMIN_LOGINED);
+            }
             adminUserService.inactiveUser(userId);
             return new BaseResponse<>("해당 유저가 비활성화 되었습니다.");
         } catch (BaseException e) {

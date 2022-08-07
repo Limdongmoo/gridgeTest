@@ -38,4 +38,5 @@ public class GetMyPageRes {
                         FeedImgUrl::getImgUrl).toList()
                 ).build();
     }
+
 }

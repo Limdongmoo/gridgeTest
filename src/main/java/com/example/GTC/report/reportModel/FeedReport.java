@@ -29,4 +29,8 @@ public class FeedReport extends BaseTime {
 
     @Enumerated(EnumType.STRING)
     private ReportOption reportOption;
+
+    public String toString() {
+        return "Report";
+    }
 }

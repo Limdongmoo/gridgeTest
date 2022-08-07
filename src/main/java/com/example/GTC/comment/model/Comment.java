@@ -38,4 +38,8 @@ public class Comment extends BaseTime {
 
     @OneToMany(mappedBy = "comment",fetch = FetchType.LAZY,cascade = CascadeType.ALL,orphanRemoval = true)
     private Set<CommentLikes> commentLikes = new HashSet<>();
+
+    public String toString() {
+        return "User";
+    }
 }

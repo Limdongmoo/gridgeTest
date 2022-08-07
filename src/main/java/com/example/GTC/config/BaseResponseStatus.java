@@ -15,6 +15,7 @@ public enum BaseResponseStatus {
      * 2000 : Request 오류
      */
     TOO_LONG_TEXT(false,2000,"텍스트가 1000자 이상입니다."),
+    IMAGES_NOT_EXIST(false, 2000, "피드 이미지가 존재하지 않습니다."),
 
     //login 관련 오류
     NOT_REGEX_EMAIL(false, 2001, "이메일의 형식을 확인해주세요"),
@@ -30,6 +31,10 @@ public enum BaseResponseStatus {
     INVALID_PHONENUM(false, 2011, "유효하지 않은 전화번호 입니다."),
     INVALID_USERID(false, 2012, "유효하지 않은 유저ID 입니다."),
 
+    EXIST_PHONENUM(false,2013,"이미 존재하는 전화번호 입니다."),
+    EXIST_USERNAME(false,2014,"이미 존재하는 사용자 이름 입니다."),
+    EXIST_EMAIL(false, 2015, "이미 존재하는 이메일 입니다."),
+
 
     //chat 관련 오류
     EMPTY_MESSAGE(false,2020,"메시지가 존재하지 않습니다."),
@@ -41,6 +46,9 @@ public enum BaseResponseStatus {
     INVALID_SIZE(false, 2032, "페이징 사이즈를 10으로 입력하세요"),
     CANNOT_REPORT_OWN_FEED(false,2040,"자신의 피드를 신고할 수 없습니다."),
     CANNOT_REPORT_OWN_COMMENT(false,2041,"자신의 댓글을 신고할 수 없습니다."),
+
+    //admin 관련
+    NOT_ADMIN_LOGINED(false, 2050, "관리자 로그인이 필요합니다."),
     /**
      * 3000 : Response 오류
      */
@@ -64,6 +72,10 @@ public enum BaseResponseStatus {
     FAILED_TO_CALCELFOLLOW_IN_SERVER(false,4011,"팔로우 취소 서버 오류"),
     FAILED_TO_CREATE_FEEDREPORT_IN_SERVER(false,4012,"피드 신고 서버 오류"),
     FAILED_TO_CREATE_COMMENTREPORT_IN_SERVER(false,4013,"댓글 신고 서버 오류"),
+    FAILED_TO_LOGIN_IN_SERVER(false,4014,"로그인 서버 오류"),
+    FAILED_TO_CREATE_USER_IN_SERVER(false,4015,"회원가입 서버 오류"),
+    FAILED_TO_CREATE_COMMENT_IN_SERVER(false,4016,"댓글 생성 서버 오류"),
+    FAILED_TO_DELETE_COMMENT_IN_SERVER(false,4017,"댓글 삭제 서버 오류"),
 
     /**
      * 5000 : Jwt 오류

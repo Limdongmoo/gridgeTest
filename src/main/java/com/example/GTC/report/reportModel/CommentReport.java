@@ -30,5 +30,9 @@ public class CommentReport extends BaseTime {
 
     @Enumerated(EnumType.STRING)
     private ReportOption reportOption;
+
+    public String toString() {
+        return "CommentReport";
+    }
 }
 

@@ -6,8 +6,9 @@ import com.example.GTC.config.BaseException;
 import com.example.GTC.config.BaseResponse;
 import com.example.GTC.config.BaseResponseStatus;
 import com.example.GTC.feed.model.PostFeedRes;
+import com.example.GTC.log.LogRepository;
+import com.example.GTC.log.model.Log;
 import com.example.GTC.utils.JwtService;
-import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
@@ -22,16 +23,17 @@ import static com.example.GTC.config.BaseResponseStatus.*;
 
 @RestController
 @RequestMapping("/api/v1/feeds")
-@Api(tags = ("Gridge Test Spring Boot REST API"))
 public class FeedController {
 
     private final FeedService feedService;
     private final JwtService jwtService;
+    private final LogRepository logRepository;
 
     @Autowired
-    public FeedController(FeedService feedService, JwtService jwtService) {
+    public FeedController(FeedService feedService, JwtService jwtService, LogRepository logRepository) {
         this.feedService = feedService;
         this.jwtService = jwtService;
+        this.logRepository = logRepository;
     }
 
     //게시물 생성 api
@@ -42,6 +44,9 @@ public class FeedController {
         if (postFeedReq.getText().length() > 1000) {
             throw new BaseException(TOO_LONG_TEXT);
         }
+        if (postFeedReq.getImgUrls().isEmpty()) {
+            throw new BaseException(IMAGES_NOT_EXIST);
+        }
 
         try {
             Long feedId = feedService.createFeed(postFeedReq);
@@ -49,9 +54,14 @@ public class FeedController {
                     .feedId(feedId)
                     .message("피드 생성이 완료되었습니다.")
                     .build();
+            Log log = new Log(true, "Feed", "Create", "피드 생성", postFeedReq.getUserId());
+            logRepository.save(log);
 
             return new BaseResponse<>(postFeedRes);
         } catch (BaseException e) {
+            Log log = new Log(false, "Feed", "Create", "피드 생성", postFeedReq.getUserId());
+            logRepository.save(log);
+
             return new BaseResponse<>(e.getStatus());
         }
     }
@@ -70,8 +80,12 @@ public class FeedController {
                     .feedId(feedService.modifyFeed(feedId, postFeedReq))
                     .message("피드 수정이 완료되었습니다.")
                     .build();
+            Log log = new Log(true, "Feed", "Update", "피드 수정", postFeedReq.getUserId());
+            logRepository.save(log);
             return new BaseResponse<>(postFeedRes);
         } catch (BaseException e) {
+            Log log = new Log(false, "Feed", "Update", "피드 수정", postFeedReq.getUserId());
+            logRepository.save(log);
             return new BaseResponse<>(e.getStatus());
         }
     }
@@ -82,8 +96,11 @@ public class FeedController {
     public BaseResponse<String> deleteFeed(@PathVariable Long feed_id) throws BaseException {
         try {
             feedService.deleteFeed(feed_id);
+            Log log = new Log(true, "Feed", "Delete", "피드 삭제", (long)jwtService.getUserId());
+            logRepository.save(log);
             return new BaseResponse<>("삭제가 완료되었습니다.");
         } catch (BaseException e) {
+            Log log = new Log(false, "Feed", "Delete", "피드 삭제", (long)jwtService.getUserId());
             return new BaseResponse<>(e.getStatus());
         }
     }

@@ -4,6 +4,7 @@ import com.example.GTC.comment.model.Comment;
 import com.example.GTC.comment.model.GetCommentRes;
 import com.example.GTC.comment.model.PostCommentReq;
 import com.example.GTC.comment.model.PostCommentRes;
+import com.example.GTC.config.BaseException;
 import com.example.GTC.feed.FeedRepository;
 import com.example.GTC.feed.model.Feed;
 import com.example.GTC.likes.commentsLikes.CommentLikesRepository;
@@ -16,6 +17,8 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+
+import static com.example.GTC.config.BaseResponseStatus.*;
 
 @Service
 @Transactional
@@ -50,20 +53,26 @@ public class CommentService {
         return getCommentResList;
     }
 
-    public PostCommentRes createComment(PostCommentReq postCommentReq) {
+    public PostCommentRes createComment(PostCommentReq postCommentReq) throws BaseException{
+        try {
+            Comment build = Comment.builder()
+                    .feed(feedRepository.findFeedByFeedIdAndStatus(postCommentReq.getFeedId(), "ACTIVE").get())
+                    .text(postCommentReq.getText())
+                    .user(userRepository.findByUserIdAndStatus(postCommentReq.getUserId(), "ACTIVE").get())
+                    .build();
 
-        Comment build = Comment.builder()
-                .feed(feedRepository.findFeedByFeedIdAndStatus(postCommentReq.getFeedId(),"ACTIVE").get())
-                .text(postCommentReq.getText())
-                .user(userRepository.findByUserIdAndStatus(postCommentReq.getUserId(),"ACTIVE").get())
-                .build();
-
-        Comment save = commentRepository.save(build);
-        return new PostCommentRes(save.getFeed().getFeedId());
-
+            Comment save = commentRepository.save(build);
+            return new PostCommentRes(save.getFeed().getFeedId());
+        } catch (Exception e) {
+            throw new BaseException(FAILED_TO_CREATE_COMMENT_IN_SERVER);
+        }
     }
 
-    public void deleteComment(Long commentId){
-        commentRepository.deleteByCommentId(commentId);
+    public void deleteComment(Long commentId) throws BaseException {
+        try {
+            commentRepository.deleteByCommentId(commentId);
+        } catch (Exception e) {
+            throw new BaseException(FAILED_TO_DELETE_COMMENT_IN_SERVER);
+        }
     }
 }

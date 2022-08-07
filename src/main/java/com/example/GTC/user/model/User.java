@@ -5,6 +5,8 @@ import com.example.GTC.chat.model.Chat;
 import com.example.GTC.feed.model.BaseTime;
 import com.example.GTC.feed.model.Feed;
 import com.example.GTC.follow.model.Follow;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import lombok.*;
 import org.hibernate.annotations.DynamicInsert;
 import org.springframework.data.annotation.CreatedDate;
@@ -22,11 +24,7 @@ import java.util.Set;
 @NoArgsConstructor
 @Getter
 @DynamicInsert
-@Table(name = "user", uniqueConstraints = {
-        @UniqueConstraint(columnNames = "userName"),
-        @UniqueConstraint(columnNames = "email"),
-        @UniqueConstraint(columnNames = "phoneNum")
-})
+@Table(name = "user")
 public class User extends BaseTime {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -74,8 +72,9 @@ public class User extends BaseTime {
     @Column(updatable = false)
     private LocalDate created;
 
+    @JsonIgnore
     @OneToMany(mappedBy = "writer", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
-    private Set<Feed> feeds = new HashSet<>();
+    private Set<Feed> feeds;
 
     @OneToMany(mappedBy = "follower", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<Follow> follows = new HashSet<>();
@@ -88,4 +87,8 @@ public class User extends BaseTime {
 
     @OneToMany(mappedBy = "receiver", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<Chat> receivers = new HashSet<>();
+
+    public String toString() {
+        return "User";
+    }
 }

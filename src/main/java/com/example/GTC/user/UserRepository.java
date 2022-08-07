@@ -31,6 +31,12 @@ public interface UserRepository extends JpaRepository<User, Long> {
 
     List<User> findAllByOrderByCreatedDateDesc();
 
+    Optional<User> findByEmail(String email);
+
+    Optional<User> findByPhoneNum(String phoneNum);
+
+    Optional<User> findByUserId(Long userId);
+
 
     void delete(User user);
 }

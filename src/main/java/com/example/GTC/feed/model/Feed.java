@@ -49,4 +49,8 @@ public class Feed extends BaseTime {
 
     @OneToMany(mappedBy = "feed",fetch = FetchType.LAZY,cascade = CascadeType.ALL,orphanRemoval = true)
     private Set<FeedReport> feedReports = new HashSet<>();
+
+    public String toString() {
+        return "User";
+    }
 }

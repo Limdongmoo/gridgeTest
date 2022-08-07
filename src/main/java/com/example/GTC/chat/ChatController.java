@@ -51,7 +51,7 @@ public class ChatController {
     @ApiOperation(value = "받은 채팅 보기")
     @ApiImplicitParam(value = "senderId",required = true, dataType = "Long", paramType = "path",example  = "0")
     @GetMapping("/{senderId}")
-    public BaseResponse<GetChatListRes> getMessage(@PathVariable Long senderId) throws BaseException {
+    public BaseResponse<GetChatListRes> getMessage(@PathVariable Long senderId) {
         try {
             Long receiverId = Long.valueOf(jwtService.getUserId());
 

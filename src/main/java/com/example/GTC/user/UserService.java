@@ -33,6 +33,10 @@ public class UserService {
         this.jwtService = jwtService;
     }
 
+    public Optional<User> findById(Long userId) {
+        return userRepository.findByUserIdAndStatus(userId, "ACTIVE");
+    }
+
     public User join(User u) {
         return userRepository.save(u);
     }
@@ -56,7 +60,7 @@ public class UserService {
     }
 
     public User changeUserPublic(Long userId) {
-        User user = userRepository.findByUserIdAndStatus(userId,"ACTIVE").get();
+        User user = userRepository.findByUserId(userId).get();
         user.setUnveiled(!user.getUnveiled());
         return userRepository.save(user);
     }
@@ -95,55 +99,82 @@ public class UserService {
 
     }
 
-    public AuthLoginModel createUser(PostSignupReq postSignupReq){
-        User build = User.builder()
-                .birth(postSignupReq.getBirth())
-                .email(postSignupReq.getEmail())
-                .imgUrl(postSignupReq.getImgUrl())
-                .password(SHA256.encrypt(postSignupReq.getPassword()))
-                .name(postSignupReq.getName())
-                .userName(postSignupReq.getUserName())
-                .phoneNum(postSignupReq.getPhoneNum())
-                .build();
+    public AuthLoginModel createUser(PostSignupReq postSignupReq) throws BaseException{
+        if (userRepository.findByEmail(postSignupReq.getEmail()).isPresent()) {
+            throw new BaseException(EXIST_EMAIL);
+        }
+        if (userRepository.findByUserName(postSignupReq.getUserName()).isPresent()) {
+            throw new BaseException(EXIST_USERNAME);
+        }
+        if (userRepository.findByPhoneNum(postSignupReq.getPhoneNum()).isPresent()) {
+            throw new BaseException(EXIST_PHONENUM);
+        }
 
-        User save = userRepository.save(build);
-        return new AuthLoginModel(jwtService.creatJwt(save.getUserId()), save.getUserId());
+        try {
+            User build = User.builder()
+                    .birth(postSignupReq.getBirth())
+                    .email(postSignupReq.getEmail())
+                    .imgUrl(postSignupReq.getImgUrl())
+                    .password(SHA256.encrypt(postSignupReq.getPassword()))
+                    .name(postSignupReq.getName())
+                    .userName(postSignupReq.getUserName())
+                    .phoneNum(postSignupReq.getPhoneNum())
+                    .build();
+
+            User save = userRepository.save(build);
+            return new AuthLoginModel(jwtService.creatJwt(save.getUserId()), save.getUserId());
+        } catch (Exception e) {
+            throw new BaseException(FAILED_TO_CREATE_USER_IN_SERVER);
+        }
     }
 
     public AuthLoginModel emailLoginUser(PostLoginReq postLoginReq) throws BaseException {
-        Optional<User> byLoginId = userRepository.findByEmailAndStatus(postLoginReq.getLoginId(),"ACTIVE");
-        if(byLoginId.isEmpty()){
+        Optional<User> byLoginId = userRepository.findByEmailAndStatus(postLoginReq.getLoginId(), "ACTIVE");
+        if (byLoginId.isEmpty()) {
             throw new BaseException(NOT_EXIST_EMAIL);
-        }else if(!byLoginId.get().getPassword().equals(SHA256.encrypt(postLoginReq.getPassword()))){
+        } else if (!byLoginId.get().getPassword().equals(SHA256.encrypt(postLoginReq.getPassword()))) {
             throw new BaseException(WRONG_PASSWORD);
-        }else{
+        }
+        try {
             Long userId = saveLastLoginTime(byLoginId);
             return new AuthLoginModel(jwtService.creatJwt(userId), userId);
+        } catch (Exception e) {
+            throw new BaseException(FAILED_TO_LOGIN_IN_SERVER);
         }
     }
 
     public AuthLoginModel phoneNumLoginUser(PostLoginReq postLoginReq) throws BaseException {
-        Optional<User> byLoginId = userRepository.findByPhoneNumAndStatus(postLoginReq.getLoginId(),"ACTIVE");
+
+        Optional<User> byLoginId = userRepository.findByPhoneNumAndStatus(postLoginReq.getLoginId(), "ACTIVE");
         if (byLoginId.isEmpty()) {
             throw new BaseException(NOT_EXIST_PHONENUM);
-        } else if (!byLoginId.get().getPassword().equals(postLoginReq.getPassword())) {
+        } else if (!byLoginId.get().getPassword().equals(SHA256.encrypt(postLoginReq.getPassword()))) {
             throw new BaseException(WRONG_PASSWORD);
-        } else {
+        }
+        try {
             Long userId = saveLastLoginTime(byLoginId);
             return new AuthLoginModel(jwtService.creatJwt(userId), userId);
+        } catch (Exception e) {
+            throw new BaseException(FAILED_TO_LOGIN_IN_SERVER);
         }
+
     }
 
 
     public AuthLoginModel userNameLoginUser(PostLoginReq postLoginReq) throws BaseException {
-        Optional<User> byLoginId = userRepository.findByUserNameAndStatus(postLoginReq.getLoginId(),"ACTIVE");
+        Optional<User> byLoginId = userRepository.findByUserNameAndStatus(postLoginReq.getLoginId(), "ACTIVE");
         if (byLoginId.isEmpty()) {
             throw new BaseException(NOT_EXIST_USERNAME);
         } else if (!byLoginId.get().getPassword().equals(SHA256.encrypt(postLoginReq.getPassword()))) {
             throw new BaseException(WRONG_PASSWORD);
-        } else {
-            Long userId = saveLastLoginTime(byLoginId);
-            return new AuthLoginModel(jwtService.creatJwt(userId), userId);
+        }
+        try {
+
+                Long userId = saveLastLoginTime(byLoginId);
+                return new AuthLoginModel(jwtService.creatJwt(userId), userId);
+
+        } catch (Exception e) {
+            throw new BaseException(FAILED_TO_LOGIN_IN_SERVER);
         }
     }
 

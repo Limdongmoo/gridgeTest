@@ -3,6 +3,8 @@ package com.example.GTC.user;
 import com.example.GTC.auth.model.AuthLoginModel;
 import com.example.GTC.config.BaseException;
 import com.example.GTC.config.BaseResponse;
+import com.example.GTC.log.LogRepository;
+import com.example.GTC.log.model.Log;
 import com.example.GTC.user.model.*;
 import com.example.GTC.utils.JwtService;
 import io.swagger.annotations.ApiImplicitParam;
@@ -20,10 +22,13 @@ import static com.example.GTC.utils.ValidationRegex.isRegexPhoneNum;
 public class UserController {
     private UserService userService;
     private JwtService jwtService;
+    private LogRepository logRepository;
 
     @Autowired
-    public UserController(UserService userService) {
+    public UserController(UserService userService, JwtService jwtService, LogRepository logRepository) {
         this.userService = userService;
+        this.jwtService = jwtService;
+        this.logRepository = logRepository;
     }
 
     // 마이페이지 조회 api
@@ -50,8 +55,12 @@ public class UserController {
             if (!Long.valueOf(jwtService.getUserId()).equals(userId)) {
                 throw new BaseException(INVALID_JWT);
             }
+            Log log = new Log(true, "User", "Update", "프로필 공개/비공개변경", userId);
+            logRepository.save(log);
             return new BaseResponse<>(userService.changeUserPublic(userId));
         }catch (BaseException e) {
+            Log log = new Log(false, "User", "Update", "프로필 공개/비공개변경", userId);
+            logRepository.save(log);
             return new BaseResponse<>(e.getStatus());
         }
     }
@@ -64,7 +73,7 @@ public class UserController {
     @GetMapping("/access/{ownUserId}/{accessUserId}")
     public BaseResponse<GetOthersPageRes> getOthersPage(@PathVariable Long ownUserId, @PathVariable Long accessUserId) {
         try {
-            if (!Long.valueOf(jwtService.getUserId()).equals(ownUserId)) {
+            if (!Long.valueOf(jwtService.getUserId()).equals(accessUserId)) {
                 throw new BaseException(INVALID_JWT);
             }
             return new BaseResponse<>(userService.getOthersPage(ownUserId, accessUserId));
@@ -82,16 +91,29 @@ public class UserController {
                 throw new BaseException(INVALID_JWT);
             }
             userService.deleteUser(userId);
+            Log log = new Log(true, "User", "Delete", "유저 삭제", userId);
+            logRepository.save(log);
             return new BaseResponse<>("삭제가 완료되었습니다.");
         }catch (BaseException e) {
+            Log log = new Log(false, "User", "Delete", "유저 삭제", userId);
+            logRepository.save(log);
             return new BaseResponse<>(e.getStatus());
         }
     }
 
     @ApiOperation(value = "회원 가입")
     @PostMapping("/signup")
-    public BaseResponse<AuthLoginModel> socialSignup(@RequestBody PostSignupReq postSignupReq) {
-        return new BaseResponse<>(userService.createUser(postSignupReq));
+    public BaseResponse<AuthLoginModel> signup(@RequestBody PostSignupReq postSignupReq) {
+        try {
+            AuthLoginModel user = userService.createUser(postSignupReq);
+            Log log = new Log(true, "User", "Create", "회원가입", user.getUserId());
+            logRepository.save(log);
+            return new BaseResponse<>(user);
+        } catch (BaseException e) {
+            Log log = new Log(false, "User", "Create", "회원가입", null);
+            logRepository.save(log);
+            return new BaseResponse<>(e.getStatus());
+        }
     }
 
     @ApiOperation(value = "email 로 로그인")
@@ -151,8 +173,14 @@ public class UserController {
             if(!userId.equals(patchPasswordReq.getUserId())){
                 throw new BaseException(INVALID_PHONENUM);
             }
-            return new BaseResponse<>(userService.changeUserPassword(patchPasswordReq.getPassword(), patchPasswordReq.getPhoneNum()));
+            PatchPasswordRes patchPasswordRes = userService.changeUserPassword(patchPasswordReq.getPassword(), patchPasswordReq.getPhoneNum());
+
+            Log log = new Log(true, "User", "Update", "비밀번호 변경", patchPasswordReq.getUserId());
+            logRepository.save(log);
+            return new BaseResponse<>(patchPasswordRes);
         } catch (BaseException e) {
+            Log log = new Log(false, "User", "Update", "비밀번호 변경", patchPasswordReq.getUserId());
+            logRepository.save(log);
             return new BaseResponse<>(e.getStatus());
         }
     }
