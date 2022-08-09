@@ -5,6 +5,7 @@ import com.example.GTC.likes.feedLikes.model.FeedLikes;
 import com.example.GTC.report.reportModel.FeedReport;
 import com.example.GTC.user.model.User;
 import lombok.*;
+import org.hibernate.annotations.DynamicInsert;
 import org.springframework.data.annotation.CreatedDate;
 
 import javax.persistence.*;
@@ -18,6 +19,7 @@ import java.util.Set;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
+@DynamicInsert
 public class Feed extends BaseTime {
 
     @Id

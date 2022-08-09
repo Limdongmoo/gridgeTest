@@ -47,6 +47,9 @@ public class FeedController {
         if (postFeedReq.getImgUrls().isEmpty()) {
             throw new BaseException(IMAGES_NOT_EXIST);
         }
+        if (!Long.valueOf(jwtService.getUserId()).equals(postFeedReq.getUserId())) {
+            throw new BaseException(INVALID_JWT);
+        }
 
         try {
             Long feedId = feedService.createFeed(postFeedReq);
@@ -74,6 +77,9 @@ public class FeedController {
         // 텍스트 길이 check validation
         if (postFeedReq.getText().length() > 1000) {
             throw new BaseException(TOO_LONG_TEXT);
+        }
+        if (!Long.valueOf(jwtService.getUserId()).equals(postFeedReq.getUserId())) {
+            throw new BaseException(INVALID_JWT);
         }
         try {
             PostFeedRes postFeedRes = PostFeedRes.builder()
