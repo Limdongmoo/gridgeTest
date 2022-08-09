@@ -37,6 +37,7 @@ public class FeedService {
             Feed feed = Feed.builder()
                     .writer(userRepository.findByUserIdAndStatus(p.getUserId(),"ACTIVE").get())
                     .text(p.getText())
+                    .status("ACTIVE")
                     .build();
 
             Feed saved = feedRepository.save(feed);
