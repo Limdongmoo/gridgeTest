@@ -101,7 +101,7 @@ public class FeedController {
     @DeleteMapping("/{feed_id}")
     public BaseResponse<String> deleteFeed(@PathVariable Long feed_id) throws BaseException {
         try {
-            if (feedService.findById(feed_id).get().getWriter().getUserId().equals(Long.valueOf(jwtService.getUserId()))) {
+            if (!feedService.findById(feed_id).get().getWriter().getUserId().equals(Long.valueOf(jwtService.getUserId()))) {
                 throw new BaseException(INVALID_JWT);
             }
             feedService.deleteFeed(feed_id);
