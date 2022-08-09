@@ -1,13 +1,15 @@
 package com.example.GTC.auth;
 
-import org.springframework.boot.configurationprocessor.json.JSONException;
-import org.springframework.boot.configurationprocessor.json.JSONObject;
+import org.json.JSONException;
+import org.json.JSONObject;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.MultiValueMap;
 
 @Service
+@Transactional
 public class AuthService {
     public String extractAccessToken(String accessTokenResponse) throws JSONException {
         JSONObject jsonObject = new JSONObject(accessTokenResponse);
