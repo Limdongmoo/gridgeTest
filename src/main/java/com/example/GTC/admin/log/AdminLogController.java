@@ -7,6 +7,7 @@ import com.example.GTC.log.model.Log;
 import com.example.GTC.user.UserService;
 import com.example.GTC.user.model.Role;
 import com.example.GTC.utils.JwtService;
+import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -36,6 +37,7 @@ public class AdminLogController {
         this.userService = userService;
     }
 
+    @ApiOperation(value = "관리자 : 클래스별 전체 로그 검색")
     @GetMapping("")
     public BaseResponse<List<Log>> findAllLogByModelName(@RequestParam String modelName, Pageable pageable) {
         try {
@@ -48,6 +50,7 @@ public class AdminLogController {
         }
     }
 
+    @ApiOperation(value = "관리자 : 클래스별 기간내의 로그 검색")
     @GetMapping("/class/date")
     public BaseResponse<List<Log>> filteredWithClassAndDateLogList(@RequestParam String modelName,
             @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) @RequestParam LocalDateTime startDateTime,
@@ -63,6 +66,7 @@ public class AdminLogController {
         }
     }
 
+    @ApiOperation(value = "관리자 : 기간내의 모든 로그 검색")
     @GetMapping("/date")
     public BaseResponse<List<Log>> filteredWithClassAndDateLogList(
             @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) @RequestParam LocalDateTime startDateTime,
