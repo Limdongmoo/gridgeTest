@@ -117,5 +117,8 @@ public class FeedService {
 
         return result;
     }
+    public Optional<Feed> findById(Long feedId){
+        return feedRepository.findById(feedId);
+    }
 
 }

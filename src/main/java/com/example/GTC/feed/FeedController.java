@@ -41,17 +41,17 @@ public class FeedController {
     @PostMapping("")
     public BaseResponse<PostFeedRes> createFeed(@RequestBody PostFeedReq postFeedReq) throws Exception {
         // 텍스트 길이 check validation
-        if (postFeedReq.getText().length() > 1000) {
-            throw new BaseException(TOO_LONG_TEXT);
-        }
-        if (postFeedReq.getImgUrls().isEmpty()) {
-            throw new BaseException(IMAGES_NOT_EXIST);
-        }
-        if (!Long.valueOf(jwtService.getUserId()).equals(postFeedReq.getUserId())) {
-            throw new BaseException(INVALID_JWT);
-        }
-
         try {
+            if (postFeedReq.getText().length() > 1000) {
+                throw new BaseException(TOO_LONG_TEXT);
+            }
+            if (postFeedReq.getImgUrls().isEmpty()) {
+                throw new BaseException(IMAGES_NOT_EXIST);
+            }
+            if (!Long.valueOf(jwtService.getUserId()).equals(postFeedReq.getUserId())) {
+                throw new BaseException(INVALID_JWT);
+            }
+
             Long feedId = feedService.createFeed(postFeedReq);
             PostFeedRes postFeedRes = PostFeedRes.builder()
                     .feedId(feedId)
@@ -75,13 +75,13 @@ public class FeedController {
     @PutMapping("/{feedId}")
     public BaseResponse<PostFeedRes> modifyFeed(@PathVariable Long feedId, @RequestBody PostFeedReq postFeedReq) throws BaseException {
         // 텍스트 길이 check validation
-        if (postFeedReq.getText().length() > 1000) {
-            throw new BaseException(TOO_LONG_TEXT);
-        }
-        if (!Long.valueOf(jwtService.getUserId()).equals(postFeedReq.getUserId())) {
-            throw new BaseException(INVALID_JWT);
-        }
         try {
+            if (postFeedReq.getText().length() > 1000) {
+                throw new BaseException(TOO_LONG_TEXT);
+            }
+            if (!Long.valueOf(jwtService.getUserId()).equals(postFeedReq.getUserId())) {
+                throw new BaseException(INVALID_JWT);
+            }
             PostFeedRes postFeedRes = PostFeedRes.builder()
                     .feedId(feedService.modifyFeed(feedId, postFeedReq))
                     .message("피드 수정이 완료되었습니다.")
@@ -101,6 +101,9 @@ public class FeedController {
     @DeleteMapping("/{feed_id}")
     public BaseResponse<String> deleteFeed(@PathVariable Long feed_id) throws BaseException {
         try {
+            if (feedService.findById(feed_id).get().getWriter().getUserId().equals(Long.valueOf(jwtService.getUserId()))) {
+                throw new BaseException(INVALID_JWT);
+            }
             feedService.deleteFeed(feed_id);
             Log log = new Log(true, "Feed", "Delete", "피드 삭제", (long)jwtService.getUserId());
             logRepository.save(log);
