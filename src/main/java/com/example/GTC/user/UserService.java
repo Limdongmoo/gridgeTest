@@ -59,10 +59,20 @@ public class UserService {
                 .imgUrl(user.getImgUrl()).build();
     }
 
-    public User changeUserPublic(Long userId) {
-        User user = userRepository.findByUserId(userId).get();
-        user.setUnveiled(!user.getUnveiled());
-        return userRepository.save(user);
+    public GetMyPageRes changeUserPublic(Long userId) {
+        User findBy = userRepository.findByUserId(userId).get();
+        findBy.setUnveiled(!findBy.getUnveiled());
+        User user = userRepository.save(findBy);
+
+        return GetMyPageRes.builder()
+                .name(user.getName())
+                .userName(user.getUserName())
+                .followedCount(followRepository.findAllByFollowedAndAccepted(user, true).size())
+                .followingCount(followRepository.findAllByFollowerAndAccepted(user, true).size())
+                .feedCount(feedRepository.findAllByUserId(user.getUserId()).size())
+                .feedPreviews(feedRepository.findAllByUserId(user.getUserId()).stream()
+                        .map(GetMyPageRes::from).toList())
+                .imgUrl(user.getImgUrl()).build();
     }
 
     public GetOthersPageRes getOthersPage(Long ownUserId, Long accessUserId) {

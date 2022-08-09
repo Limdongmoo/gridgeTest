@@ -72,7 +72,6 @@ public class User extends BaseTime {
     @Column(updatable = false)
     private LocalDate created;
 
-    @JsonIgnore
     @OneToMany(mappedBy = "writer", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<Feed> feeds;
 

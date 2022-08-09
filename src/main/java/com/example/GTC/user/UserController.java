@@ -50,7 +50,7 @@ public class UserController {
     @ApiOperation(value = "프로필 공개/비공개 변경 api")
     @ApiImplicitParam(name = "userId", value = "로그인 유저 식별자", required = true, dataType = "Long", paramType = "path", example = "0")
     @PatchMapping("/{userId}")
-    public BaseResponse<User> changeUserPublic(@PathVariable Long userId) {
+    public BaseResponse<GetMyPageRes> changeUserPublic(@PathVariable Long userId) {
         try {
             if (!Long.valueOf(jwtService.getUserId()).equals(userId)) {
                 throw new BaseException(INVALID_JWT);
